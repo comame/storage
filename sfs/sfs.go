@@ -37,7 +37,7 @@ func hashFile(r io.Reader) (string, error) {
 
 func filenamePrefix(n string) (string, string, error) {
 	if len(n) < 4 {
-		fmt.Errorf("`%s` is too short to calculate prefixes.", n)
+		return "", "", fmt.Errorf("`%s` is too short to calculate prefixes", n)
 	}
 
 	first := n[0:2]
