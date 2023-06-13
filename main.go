@@ -8,6 +8,7 @@ import (
 	"log"
 	"mime"
 	"net/http"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -48,6 +49,14 @@ func dataJson(data any) (string, error) {
 func main() {
 	sfs.SetDatadir(envvar.DataDir)
 
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		f, err := os.Open("./test.html")
+		if err != nil {
+			panic(err)
+		}
+		io.Copy(w, f)
+	})
+
 	router.Post("/bucket/create", func(w http.ResponseWriter, r *http.Request) {
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
@@ -66,7 +75,7 @@ func main() {
 		}
 	})
 
-	router.Post("/file/create", func(w http.ResponseWriter, r *http.Request) {
+	router.Post("/file/create/:bucket", func(w http.ResponseWriter, r *http.Request) {
 		var maxUploadSize = 50 * 1024 * 1024 // 50 MiB
 		r.Body = http.MaxBytesReader(w, r.Body, int64(maxUploadSize))
 		if err := r.ParseMultipartForm(int64(maxUploadSize)); err != nil {
@@ -79,7 +88,13 @@ func main() {
 			http.Error(w, errJson(err), http.StatusBadRequest)
 			return
 		}
-		bucket := r.FormValue("bucket")
+
+		bucket, ok := router.Params(r)["bucket"]
+		if !ok {
+			http.Error(w, errJson(errors.New("invalid request")), http.StatusBadRequest)
+			return
+		}
+
 		file, err := createFile(r.Context(), h.Filename, bucket, f)
 		if err != nil {
 			http.Error(w, errJson(err), http.StatusBadRequest)
