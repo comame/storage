@@ -57,23 +57,23 @@ func main() {
 		io.Copy(w, f)
 	})
 
-	router.Post("/bucket/create", func(w http.ResponseWriter, r *http.Request) {
-		body, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, errJson(err), http.StatusBadRequest)
-			return
-		}
+	// router.Post("/bucket/create", func(w http.ResponseWriter, r *http.Request) {
+	// 	body, err := io.ReadAll(r.Body)
+	// 	if err != nil {
+	// 		http.Error(w, errJson(err), http.StatusBadRequest)
+	// 		return
+	// 	}
 
-		var bucket Bucket
-		if err := json.Unmarshal(body, &bucket); err != nil {
-			http.Error(w, errJson(err), http.StatusBadRequest)
-			return
-		}
+	// 	var bucket Bucket
+	// 	if err := json.Unmarshal(body, &bucket); err != nil {
+	// 		http.Error(w, errJson(err), http.StatusBadRequest)
+	// 		return
+	// 	}
 
-		if err := createBucket(r.Context(), bucket.Name); err != nil {
-			http.Error(w, errJson(err), http.StatusBadRequest)
-		}
-	})
+	// 	if err := createBucket(r.Context(), bucket.Name); err != nil {
+	// 		http.Error(w, errJson(err), http.StatusBadRequest)
+	// 	}
+	// })
 
 	router.Post("/file/create/:bucket", func(w http.ResponseWriter, r *http.Request) {
 		var maxUploadSize = 50 * 1024 * 1024 // 50 MiB
